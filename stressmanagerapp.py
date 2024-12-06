@@ -144,6 +144,5 @@ def main():
 def predict_stress(user_data):
     # [Previous prediction logic remains the same]
     # Return prediction and suggestions formatted for Streamlit
-
-if __name__ =="__main__":
-    main()
+    if __name__ =="__main__":
+        main()
