@@ -1,7 +1,4 @@
-# %% [markdown]
 # Importing Required Libraries
-
-# %%
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
@@ -59,7 +56,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Load and prepare data
-df = pd.read_csv("C:/Users/hpsli/Favorites/Downloads/Sleep_health_and_lifestyle_dataset.csv")
+df = pd.read_csv("Sleep_health_and_lifestyle_dataset.csv")  # Ensure this file is uploaded in Streamlit Community Cloud
 df_cleaned = df.drop_duplicates()
 df_cleaned = df_cleaned.drop(columns=['Person ID'])
 
@@ -76,6 +73,16 @@ y = df_encoded['Stress Level']
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 rf_model = RandomForestRegressor(random_state=42)
 rf_model.fit(X_train, y_train)
+
+def predict_stress(user_data):
+    """
+    Predict stress level based on user input data.
+    """
+    user_df = pd.DataFrame([user_data])
+    user_encoded = pd.get_dummies(user_df, drop_first=True)
+    user_encoded = user_encoded.reindex(columns=X.columns, fill_value=0)
+    prediction = rf_model.predict(user_encoded)
+    return f"Predicted Stress Level: {prediction[0]:.2f}"
 
 def main():
     # Title and description
@@ -116,7 +123,7 @@ def main():
             response = st.slider("Select value", q['min'], q['max'], key=f"q_{st.session_state.step}")
 
         if st.button("Next"):
-            st.session_state.user_data[st.session_state.step] = response
+            st.session_state.user_data[q['text']] = response
             st.session_state.step += 1
             st.experimental_rerun()
 
@@ -141,8 +148,5 @@ def main():
         </div>
     """, unsafe_allow_html=True)
 
-def predict_stress(user_data):
-    # [Previous prediction logic remains the same]
-    # Return prediction and suggestions formatted for Streamlit
-if __name__ =="__main__":
-        main()
+if __name__ == "__main__":
+    main()
