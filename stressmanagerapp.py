@@ -1,3 +1,4 @@
+
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
@@ -19,7 +20,7 @@ st.markdown("""
     }
     .stButton>button {
         background-color: #4CAF50;
-        color: var(--text-color);
+        color: #FFFFFF;
         border-radius: 10px;
         padding: 10px 20px;
         margin: 5px;
@@ -31,14 +32,14 @@ st.markdown("""
     .stTextInput>div>div>input {
         border-radius: 10px;
         border: 2px solid #4CAF50;
-        background-color: var(--background-color);
-        color: var(--text-color);
+        background-color: rgba(255,255,255,0.1);
+        color: #333333;
     }
     .stSelectbox>div>div>select {
         border-radius: 10px;
         border: 2px solid #4CAF50;
-        background-color: var(--background-color);
-        color: var(--text-color);
+        background-color: rgba(255,255,255,0.1);
+        color: #333333;
     }
     .chat-message {
         padding: 15px;
@@ -50,6 +51,21 @@ st.markdown("""
     }
     .bot-message {
         background-color: rgba(76, 175, 80, 0.1);
+    }
+    h1, h2, h3 {
+        color: #2E7D32;
+    }
+    p {
+        color: #333333;
+        font-size: 16px;
+        line-height: 1.5;
+    }
+    .result-card {
+        background-color: #E8F5E9;
+        padding: 20px;
+        border-radius: 15px;
+        margin: 20px 0;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
     </style>
 """, unsafe_allow_html=True)
@@ -94,7 +110,7 @@ def predict_stress(user_data):
 
 def main():
     # Title and description
-    st.markdown("<h1 style='text-align: center; color: #4CAF50;'>Mental Stress Manager</h1>", unsafe_allow_html=True)
+    st.markdown("<h1 style='text-align: center;'>Mental Stress Manager</h1>", unsafe_allow_html=True)
     st.markdown("<p style='text-align: center;'>Assess your stress level and get personalized suggestions</p>", unsafe_allow_html=True)
 
     # Initialize session state
@@ -121,36 +137,39 @@ def main():
     # Display current question
     if st.session_state.step < len(questions):
         q = questions[st.session_state.step]
-        st.markdown(f"<h3 style='color: #4CAF50;'>{q['text']}</h3>", unsafe_allow_html=True)
+        st.markdown(f"<h3>{q['text']}</h3>", unsafe_allow_html=True)
         
         if q['type'] == 'select':
             response = st.selectbox("Select an option", q['options'], key=f"q_{st.session_state.step}")
         elif q['type'] == 'number':
-            response = st.number_input("Enter value", key=f"q_{st.session_state.step}")
+            response = st.number_input("Enter value", min_value=0, key=f"q_{st.session_state.step}")
         elif q['type'] == 'slider':
             response = st.slider("Select value", q['min'], q['max'], key=f"q_{st.session_state.step}")
 
         if st.button("Next"):
             st.session_state.user_data[q['text']] = response
             st.session_state.step += 1
-            st.experimental_rerun()
+            st.rerun()
 
     # Show results
     elif st.session_state.step == len(questions):
-        prediction = predict_stress(st.session_state.user_data)
-        st.markdown(f"<div class='chat-message bot-message'>{prediction}</div>", unsafe_allow_html=True)
+        with st.container():
+            st.markdown("<div class='result-card'>", unsafe_allow_html=True)
+            prediction = predict_stress(st.session_state.user_data)
+            st.markdown(f"<h2 style='text-align: center;'>{prediction}</h2>", unsafe_allow_html=True)
+            st.markdown("</div>", unsafe_allow_html=True)
         
         if st.button("Start Over"):
             st.session_state.step = 0
             st.session_state.user_data = {}
-            st.experimental_rerun()
+            st.rerun()
 
     # Footer
     st.markdown("---")
     st.markdown("""
-        <div style='text-align: center;'>
+        <div style='text-align: center; background-color: #E8F5E9; padding: 20px; border-radius: 10px;'>
             <p>Made with ❤️ by Team Stress Busters</p>
-            <p style='font-size: 18px; font-weight: bold; color: #4CAF50;'>Development Team:</p>
+            <p style='font-size: 18px; font-weight: bold;'>Development Team:</p>
             <p>Lead Developer: Vikhram S</p>
             <p>Co-Developers: Ragul S, Roshan R, Nithesh Kumar B</p>
         </div>
