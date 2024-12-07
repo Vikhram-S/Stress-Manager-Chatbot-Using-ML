@@ -12,9 +12,11 @@ st.set_page_config(
     layout="wide"
 )
 
-# Initialize user data dictionary in session state if not exists
+# Initialize session state variables if they don't exist
 if 'user_data' not in st.session_state:
     st.session_state.user_data = {}
+if 'chat_history' not in st.session_state:
+    st.session_state.chat_history = []
 
 # Display welcome message and app info
 st.title("Welcome to Mental Stress Manager 🧠")
