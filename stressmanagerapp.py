@@ -1,4 +1,3 @@
-# Importing Required Libraries
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
@@ -55,10 +54,19 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# Load and prepare data
-df = pd.read_csv("Sleep_health_and_lifestyle_dataset.csv")  # Ensure this file is uploaded in Streamlit Community Cloud
+# Upload dataset
+st.title("Mental Stress Manager")
+uploaded_file = st.file_uploader("Upload the Sleep Health and Lifestyle Dataset (CSV)", type="csv")
+if uploaded_file is not None:
+    df = pd.read_csv(uploaded_file)
+else:
+    st.error("Please upload the required dataset to proceed.")
+    st.stop()
+
+# Data preprocessing
 df_cleaned = df.drop_duplicates()
-df_cleaned = df_cleaned.drop(columns=['Person ID'])
+if 'Person ID' in df_cleaned.columns:
+    df_cleaned = df_cleaned.drop(columns=['Person ID'])
 
 # Convert categorical variables
 categorical_columns = ['Gender', 'Occupation', 'BMI Category', 'Blood Pressure', 'Sleep Disorder']
