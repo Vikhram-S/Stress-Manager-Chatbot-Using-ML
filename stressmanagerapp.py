@@ -95,12 +95,12 @@ if uploaded_file is not None:
             border: 1px solid #3498DB;
         }
         .footer {
-            background: linear-gradient(45deg, #E8F4F8, #BED7E6);
+            background: linear-gradient(45deg, #2196F3, #64B5F6);
             padding: 30px;
             border-radius: 20px;
             margin-top: 50px;
-            color: #2C3E50;
-            border: 1px solid #3498DB;
+            color: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(33, 150, 243, 0.5);
         }
         </style>
     """, unsafe_allow_html=True)
