@@ -1,4 +1,8 @@
-# Display welcome message and app info
+import numpy as np
+import pandas as pd
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.model_selection import train_test_split
+import streamlit as st
 st.title("Welcome to Mental Stress Manager 🧠")
 st.markdown("""
 This is your personal AI companion for managing stress and mental wellbeing.
