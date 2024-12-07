@@ -5,6 +5,12 @@ from sklearn.model_selection import train_test_split
 import streamlit as st
 import traceback
 
+# Set page configuration first
+st.set_page_config(
+    page_title="Mental Stress Manager", 
+    layout="wide"
+)
+
 # File uploader for CSV
 st.sidebar.header("Upload Dataset")
 uploaded_file = st.sidebar.file_uploader("Upload your CSV file", type=["csv"])
@@ -26,12 +32,6 @@ if uploaded_file is not None:
     # Get unique occupations
     unique_occupations = df_cleaned['Occupation'].unique().tolist()
     unique_occupations.append("Others")
-
-    # Set page configuration
-    st.set_page_config(
-        page_title="Mental Stress Manager", 
-        layout="wide"
-    )
 
     # Custom CSS styling
     st.markdown("""
