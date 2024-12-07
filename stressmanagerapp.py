@@ -1,34 +1,44 @@
-"""
-Welcome to the Mental Stress Manager Web App!
+# Display welcome message and app info
+st.title("Welcome to Mental Stress Manager 🧠")
+st.markdown("""
+This is your personal AI companion for managing stress and mental wellbeing.
 
-For Users:
-This app is your personal AI companion for managing stress and mental wellbeing. Here's what you can do:
+### What You Can Do:
+- Have natural conversations about your stress and concerns
+- Get personalized responses and support 
+- Track your stress levels over time
+- Upload health data for AI-powered predictions
+- Receive customized recommendations
 
-1. Chat Interface:
-   - Have natural conversations about your stress and concerns
-   - Get personalized responses and support
-   - Track your stress levels over time
+### Key Features:
+- User-friendly chat interface
+- Real-time stress assessment
+- Beautiful, calming design
+- Secure and private interactions
+""")
 
-2. Smart Analysis:
-   - Upload your health data through CSV file
-   - Get AI-powered stress level predictions
-   - Receive personalized recommendations
+# Initial stress assessment questions
+st.subheader("Let's do a quick stress assessment:")
 
-3. Features:
-   - User-friendly chat interface
-   - Real-time stress assessment
-   - Beautiful, calming design
-   - Secure and private interactions
+stress_level = st.slider("On a scale of 1-10, how would you rate your current stress level?", 1, 10, 5)
+sleep_hours = st.number_input("How many hours of sleep did you get last night?", 0, 12, 7)
+stress_factors = st.multiselect(
+    "What factors are contributing to your stress? (Select all that apply)",
+    ["Work", "Relationships", "Health", "Finance", "Family", "Studies", "Other"]
+)
 
-4. How to Use:
-   - Upload your health dataset when prompted
-   - Type your questions or concerns in the chat
-   - Get instant responses and guidance
-   - Track your progress over time
+physical_symptoms = st.multiselect(
+    "Are you experiencing any physical symptoms? (Select all that apply)",
+    ["Headache", "Muscle tension", "Fatigue", "Sleep issues", "Appetite changes", "None"]
+)
 
-Created by Team Z Data Knights
-For support, reach us through the social links below
-"""
+# Footer with team info
+st.markdown("---")
+col1, col2 = st.columns(2)
+with col1:
+    st.markdown("Created by Team Z Data Knights")
+with col2:
+    st.markdown("For support, reach us through our [social links](#)")
 
 import numpy as np
 import pandas as pd
