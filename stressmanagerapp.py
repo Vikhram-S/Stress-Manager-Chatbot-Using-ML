@@ -95,10 +95,12 @@ if uploaded_file is not None:
             border: 1px solid #3498DB;
         }
         .footer {
-            background: linear-gradient(45deg, #2C3E50, #3498DB);
+            background: linear-gradient(45deg, #E8F4F8, #BED7E6);
             padding: 30px;
             border-radius: 20px;
             margin-top: 50px;
+            color: #2C3E50;
+            border: 1px solid #3498DB;
         }
         </style>
     """, unsafe_allow_html=True)
@@ -318,7 +320,7 @@ if uploaded_file is not None:
             <div class='footer'>
                 <h3>Meet Our Exceptional Development Team</h3>
                 <div class='team-section'>
-                    <p><strong>Project Lead Developer</strong><br>Vikhram S</p>
+                    <p><strong>Project Lead Developer</strong><br><strong>Vikhram S</strong></p>
                     <p><strong>Co-Developers</strong><br>
                     • Ragul S<br>
                     • Roshan R<br>
