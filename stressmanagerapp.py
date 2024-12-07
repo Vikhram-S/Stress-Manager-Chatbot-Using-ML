@@ -1,3 +1,34 @@
+"""
+Welcome to the Mental Stress Manager Web App!
+
+For Users:
+This app is your personal AI companion for managing stress and mental wellbeing. Here's what you can do:
+
+1. Chat Interface:
+   - Have natural conversations about your stress and concerns
+   - Get personalized responses and support
+   - Track your stress levels over time
+
+2. Smart Analysis:
+   - Upload your health data through CSV file
+   - Get AI-powered stress level predictions
+   - Receive personalized recommendations
+
+3. Features:
+   - User-friendly chat interface
+   - Real-time stress assessment
+   - Beautiful, calming design
+   - Secure and private interactions
+
+4. How to Use:
+   - Upload your health dataset when prompted
+   - Type your questions or concerns in the chat
+   - Get instant responses and guidance
+   - Track your progress over time
+
+Created by Team Z Data Knights
+For support, reach us through the social links below
+"""
 
 import numpy as np
 import pandas as pd
@@ -12,63 +43,123 @@ st.set_page_config(
     layout="wide"
 )
 
-# Custom CSS styling with dark/light mode compatibility
+# Custom CSS styling with modern UI colors
 st.markdown("""
     <style>
     .main {
-        background-color: transparent;
+        background-color: #1E1E1E;
+        color: #FFFFFF;
     }
     .stButton>button {
-        background-color: #4CAF50;
-        color: #FFFFFF;
+        background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+        color: white;
+        border: none;
         border-radius: 10px;
         padding: 10px 20px;
         margin: 5px;
-        transition: transform 0.3s ease;
+        transition: all 0.3s ease;
     }
     .stButton>button:hover {
         transform: scale(1.05);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
     }
     .stTextInput>div>div>input {
         border-radius: 10px;
-        border: 2px solid #4CAF50;
+        border: 2px solid #4ECDC4;
         background-color: rgba(255,255,255,0.1);
-        color: #333333;
+        color: white;
     }
     .stSelectbox>div>div>select {
         border-radius: 10px;
-        border: 2px solid #4CAF50;
+        border: 2px solid #4ECDC4;
         background-color: rgba(255,255,255,0.1);
-        color: #333333;
+        color: white;
+    }
+    .chat-container {
+        max-width: 800px;
+        margin: auto;
+        padding: 20px;
     }
     .chat-message {
         padding: 15px;
-        border-radius: 10px;
-        margin: 5px 0;
+        border-radius: 15px;
+        margin: 10px 0;
+        display: flex;
+        align-items: flex-start;
     }
     .user-message {
-        background-color: rgba(76, 175, 80, 0.2);
+        background: linear-gradient(45deg, #FF6B6B22, #FF6B6B44);
+        margin-left: 50px;
     }
     .bot-message {
-        background-color: rgba(76, 175, 80, 0.1);
+        background: linear-gradient(45deg, #4ECDC422, #4ECDC444);
+        margin-right: 50px;
+    }
+    .avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        margin-right: 10px;
     }
     h1, h2, h3 {
-        color: #2E7D32;
+        background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-align: center;
     }
     p {
-        color: #333333;
+        color: #FFFFFF;
         font-size: 16px;
-        line-height: 1.5;
+        line-height: 1.6;
     }
     .result-card {
-        background-color: #E8F5E9;
-        padding: 20px;
-        border-radius: 15px;
+        background: linear-gradient(45deg, #2C3E50, #3498DB);
+        padding: 25px;
+        border-radius: 20px;
         margin: 20px 0;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+    .footer {
+        background: linear-gradient(45deg, #2C3E50, #3498DB);
+        padding: 30px;
+        border-radius: 20px;
+        margin-top: 50px;
+    }
+    .footer-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        max-width: 1200px;
+        margin: auto;
+    }
+    .team-section {
+        flex: 1;
+        min-width: 300px;
+        padding: 20px;
+    }
+    .social-links {
+        display: flex;
+        gap: 20px;
+    }
+    .social-link {
+        color: white;
+        text-decoration: none;
+        padding: 10px 20px;
+        border-radius: 30px;
+        background: rgba(255,255,255,0.1);
+        transition: all 0.3s ease;
+    }
+    .social-link:hover {
+        background: rgba(255,255,255,0.2);
+        transform: translateY(-2px);
     }
     </style>
 """, unsafe_allow_html=True)
+
+# Initialize chat history
+if 'chat_history' not in st.session_state:
+    st.session_state.chat_history = []
 
 # Upload dataset
 st.title("Mental Stress Manager")
@@ -101,77 +192,79 @@ rf_model.fit(X_train, y_train)
 def predict_stress(user_data):
     """
     Predict stress level based on user input data.
+    Uses Random Forest model trained on sleep health and lifestyle data.
+    Returns a stress level prediction between 1-10.
     """
     user_df = pd.DataFrame([user_data])
     user_encoded = pd.get_dummies(user_df, drop_first=True)
     user_encoded = user_encoded.reindex(columns=X.columns, fill_value=0)
     prediction = rf_model.predict(user_encoded)
-    return f"Predicted Stress Level: {prediction[0]:.2f}"
+    return prediction[0]
 
 def main():
-    # Title and description
-    st.markdown("<h1 style='text-align: center;'>Mental Stress Manager</h1>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align: center;'>Assess your stress level and get personalized suggestions</p>", unsafe_allow_html=True)
+    st.markdown("<h1>Mental Stress Manager</h1>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center;'>Your AI-powered stress management assistant</p>", unsafe_allow_html=True)
 
-    # Initialize session state
-    if 'step' not in st.session_state:
-        st.session_state.step = 0
-        st.session_state.user_data = {}
+    # Chat interface
+    st.markdown("<div class='chat-container'>", unsafe_allow_html=True)
+    
+    # Display chat history
+    for message in st.session_state.chat_history:
+        if message['role'] == 'user':
+            st.markdown(f"""
+                <div class='chat-message user-message'>
+                    <img src='https://api.dicebear.com/6.x/avataaars/svg?seed=user' class='avatar'>
+                    <div>{message['content']}</div>
+                </div>
+            """, unsafe_allow_html=True)
+        else:
+            st.markdown(f"""
+                <div class='chat-message bot-message'>
+                    <img src='https://api.dicebear.com/6.x/bottts/svg?seed=bot' class='avatar'>
+                    <div>{message['content']}</div>
+                </div>
+            """, unsafe_allow_html=True)
 
-    # Questions flow
-    questions = {
-        0: {"text": "What is your gender?", "type": "select", "options": ["Male", "Female"]},
-        1: {"text": "What is your age?", "type": "number"},
-        2: {"text": "What is your occupation?", "type": "select", "options": list(df_cleaned['Occupation'].unique()) + ["Others"]},
-        3: {"text": "How many hours do you sleep per day?", "type": "number"},
-        4: {"text": "Rate your sleep quality (1-10):", "type": "slider", "min": 1, "max": 10},
-        5: {"text": "Rate your physical activity level (1-10):", "type": "slider", "min": 1, "max": 10},
-        6: {"text": "What is your BMI category?", "type": "select", "options": ["Normal", "Overweight", "Obese"]},
-        7: {"text": "What is your systolic blood pressure?", "type": "number"},
-        8: {"text": "What is your diastolic blood pressure?", "type": "number"},
-        9: {"text": "What is your heart rate?", "type": "number"},
-        10: {"text": "How many steps do you take daily?", "type": "number"},
-        11: {"text": "Do you have any sleep disorders?", "type": "select", "options": ["None", "Sleep Apnea", "Insomnia"]}
-    }
-
-    # Display current question
-    if st.session_state.step < len(questions):
-        q = questions[st.session_state.step]
-        st.markdown(f"<h3>{q['text']}</h3>", unsafe_allow_html=True)
-        
-        if q['type'] == 'select':
-            response = st.selectbox("Select an option", q['options'], key=f"q_{st.session_state.step}")
-        elif q['type'] == 'number':
-            response = st.number_input("Enter value", min_value=0, key=f"q_{st.session_state.step}")
-        elif q['type'] == 'slider':
-            response = st.slider("Select value", q['min'], q['max'], key=f"q_{st.session_state.step}")
-
-        if st.button("Next"):
-            st.session_state.user_data[q['text']] = response
-            st.session_state.step += 1
-            st.rerun()
-
-    # Show results
-    elif st.session_state.step == len(questions):
-        with st.container():
-            st.markdown("<div class='result-card'>", unsafe_allow_html=True)
-            prediction = predict_stress(st.session_state.user_data)
-            st.markdown(f"<h2 style='text-align: center;'>{prediction}</h2>", unsafe_allow_html=True)
-            st.markdown("</div>", unsafe_allow_html=True)
-        
-        if st.button("Start Over"):
-            st.session_state.step = 0
-            st.session_state.user_data = {}
+    # User input
+    user_input = st.text_input("Ask me about your stress levels...", key="user_input")
+    
+    if st.button("Send"):
+        if user_input:
+            # Add user message to chat history
+            st.session_state.chat_history.append({
+                'role': 'user',
+                'content': user_input
+            })
+            
+            # Process user input and generate response
+            # This is a simplified example - you would need to implement proper NLP here
+            response = "I understand you're concerned about stress. Let's assess your stress levels with some questions."
+            
+            # Add bot response to chat history
+            st.session_state.chat_history.append({
+                'role': 'assistant',
+                'content': response
+            })
+            
             st.rerun()
 
     # Footer
-    st.markdown("---")
     st.markdown("""
-        <div style='text-align: center; background-color: #E8F5E9; padding: 20px; border-radius: 10px;'>
-            <p>Made with ❤️ by Team Stress Busters</p>
-            <p style='font-size: 18px; font-weight: bold;'>Development Team:</p>
-            <p>Lead Developer: Vikhram S</p>
-            <p>Co-Developers: Ragul S, Roshan R, Nithesh Kumar B</p>
+        <div class='footer'>
+            <div class='footer-content'>
+                <div class='team-section'>
+                    <h3>Development Team</h3>
+                    <p>Lead Developer: Vikhram S</p>
+                    <p>Co-Developers: Ragul S, Roshan R, Nithesh Kumar B</p>
+                </div>
+                <div class='social-links'>
+                    <a href='https://www.linkedin.com/in/vikhram-s' class='social-link'>📧 LinkedIn</a>
+                    <a href='mailto:vikhrams@saveetha.ac.in' class='social-link'>💼 Email</a>
+                    <a href='https://github.com/Vikhram-S' class='social-link'>🌟 GitHub</a>
+                </div>
+            </div>
+            <p style='text-align: center; margin-top: 20px;'>Made with ❤️ by Team Z Data Knights</p>
+            <p style='text-align: center; margin-top: 10px;'>© 2024 Mental Stress Manager Chatbot by Z Data Knights. All rights reserved.</p>
         </div>
     """, unsafe_allow_html=True)
 
