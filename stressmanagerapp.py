@@ -182,28 +182,28 @@ if uploaded_file is not None:
             'Physical Activity Level': [user_data['activity_level']],
             'Heart Rate': [user_data['heart_rate']],
             'Daily Steps': [user_data['daily_steps']],
-            'Gender_Male': [1 if user_data['gender'].lower() == "male" else 0],
+            'Gender_Male': [1 if user_data['gender'].lower().strip() == "male" else 0],
             'Systolic_BP': [user_data['systolic_bp']],
             'Diastolic_BP': [user_data['diastolic_bp']]
         })
 
         # Handle occupation encoding
-        if user_data['occupation'] == "Others":
+        if user_data['occupation'].strip().title() == "Others":
             for occ in unique_occupations:
                 input_data[f"Occupation_{occ}"] = [0]
         else:
             for occ in unique_occupations:
-                input_data[f"Occupation_{occ}"] = [1 if user_data['occupation'] == occ else 0]
+                input_data[f"Occupation_{occ}"] = [1 if user_data['occupation'].strip().title() == occ else 0]
 
         # Encode BMI category
-        input_data[f'BMI Category_Normal'] = [1 if user_data['bmi_category'] == "Normal" else 0]
-        input_data[f'BMI Category_Overweight'] = [1 if user_data['bmi_category'] == "Overweight" else 0]
-        input_data[f'BMI Category_Obese'] = [1 if user_data['bmi_category'] == "Obese" else 0]
+        input_data[f'BMI Category_Normal'] = [1 if user_data['bmi_category'].strip().title() == "Normal" else 0]
+        input_data[f'BMI Category_Overweight'] = [1 if user_data['bmi_category'].strip().title() == "Overweight" else 0]
+        input_data[f'BMI Category_Obese'] = [1 if user_data['bmi_category'].strip().title() == "Obese" else 0]
 
         # Encode Sleep Disorder
-        input_data[f'Sleep Disorder_None'] = [1 if user_data['sleep_disorder'] == "None" else 0]
-        input_data[f'Sleep Disorder_Sleep Apnea'] = [1 if user_data['sleep_disorder'] == "Sleep Apnea" else 0]
-        input_data[f'Sleep Disorder_Insomnia'] = [1 if user_data['sleep_disorder'] == "Insomnia" else 0]
+        input_data[f'Sleep Disorder_None'] = [1 if user_data['sleep_disorder'].strip().title() == "None" else 0]
+        input_data[f'Sleep Disorder_Sleep Apnea'] = [1 if user_data['sleep_disorder'].strip().title() == "Sleep Apnea" else 0]
+        input_data[f'Sleep Disorder_Insomnia'] = [1 if user_data['sleep_disorder'].strip().title() == "Insomnia" else 0]
 
         input_data = input_data[X.columns]
         prediction = rf_model.predict(input_data)[0]
@@ -219,18 +219,18 @@ if uploaded_file is not None:
         st.markdown("<h1>Mental Stress Assessment</h1>", unsafe_allow_html=True)
         
         questions = [
-            ("Please enter your gender (Male/Female):", "gender", lambda x: x.lower() in ["male", "female"]),
-            ("What is your age?", "age", lambda x: x.isdigit() and 18 <= int(x) <= 100),
-            ("What is your occupation?", "occupation", lambda x: x.title() in unique_occupations),
-            ("How many hours do you sleep per day? (4-12)", "sleep_duration", lambda x: x.replace('.','',1).isdigit() and 4 <= float(x) <= 12),
-            ("Rate your sleep quality (1-10):", "sleep_quality", lambda x: x.isdigit() and 1 <= int(x) <= 10),
-            ("Rate your physical activity level (1-10):", "activity_level", lambda x: x.isdigit() and 1 <= int(x) <= 10),
-            ("Enter your BMI category (Normal/Overweight/Obese):", "bmi_category", lambda x: x.title() in ["Normal", "Overweight", "Obese"]),
-            ("Enter your systolic blood pressure (90-200):", "systolic_bp", lambda x: x.isdigit() and 90 <= int(x) <= 200),
-            ("Enter your diastolic blood pressure (60-130):", "diastolic_bp", lambda x: x.isdigit() and 60 <= int(x) <= 130),
-            ("Enter your heart rate (60-120):", "heart_rate", lambda x: x.isdigit() and 60 <= int(x) <= 120),
-            ("Enter your daily steps (1000-20000):", "daily_steps", lambda x: x.isdigit() and 1000 <= int(x) <= 20000),
-            ("Do you have any sleep disorder? (None/Sleep Apnea/Insomnia):", "sleep_disorder", lambda x: x.title() in ["None", "Sleep Apnea", "Insomnia"])
+            ("Please enter your gender (Male/Female):", "gender", lambda x: x.strip().lower() in ["male", "female"]),
+            ("What is your age?", "age", lambda x: x.strip().isdigit() and 18 <= int(x) <= 100),
+            ("What is your occupation?", "occupation", lambda x: x.strip().title() in unique_occupations),
+            ("How many hours do you sleep per day? (4-12)", "sleep_duration", lambda x: x.strip().replace('.','',1).isdigit() and 4 <= float(x) <= 12),
+            ("Rate your sleep quality (1-10):", "sleep_quality", lambda x: x.strip().isdigit() and 1 <= int(x) <= 10),
+            ("Rate your physical activity level (1-10):", "activity_level", lambda x: x.strip().isdigit() and 1 <= int(x) <= 10),
+            ("Enter your BMI category (Normal/Overweight/Obese):", "bmi_category", lambda x: x.strip().title() in ["Normal", "Overweight", "Obese"]),
+            ("Enter your systolic blood pressure (90-200):", "systolic_bp", lambda x: x.strip().isdigit() and 90 <= int(x) <= 200),
+            ("Enter your diastolic blood pressure (60-130):", "diastolic_bp", lambda x: x.strip().isdigit() and 60 <= int(x) <= 130),
+            ("Enter your heart rate (60-120):", "heart_rate", lambda x: x.strip().isdigit() and 60 <= int(x) <= 120),
+            ("Enter your daily steps (1000-20000):", "daily_steps", lambda x: x.strip().isdigit() and 1000 <= int(x) <= 20000),
+            ("Do you have any sleep disorder? (None/Sleep Apnea/Insomnia):", "sleep_disorder", lambda x: x.strip().title() in ["None", "Sleep Apnea", "Insomnia"])
         ]
 
         # Display chat history
@@ -248,36 +248,52 @@ if uploaded_file is not None:
             st.write(f"Question {st.session_state.step + 1}/{len(questions)}")
             user_input = st.text_input(question, key=f"input_{st.session_state.step}")
             
-            if st.button("Next"):
-                if validator(user_input):
-                    st.session_state.user_data[key] = user_input
-                    st.session_state.chat_history.append((question, user_input))
-                    st.session_state.step += 1
+            col1, col2 = st.columns(2)
+            with col1:
+                if st.button("Next"):
+                    if validator(user_input):
+                        st.session_state.user_data[key] = user_input.strip()
+                        st.session_state.chat_history.append((question, user_input.strip()))
+                        st.session_state.step += 1
+                        st.experimental_rerun()
+                    else:
+                        st.error("Please provide a valid input")
+            with col2:
+                if st.button("Clear"):
+                    st.session_state.step = 0
+                    st.session_state.user_data = {}
+                    st.session_state.chat_history = []
                     st.experimental_rerun()
-                else:
-                    st.error("Please provide a valid input")
                     
         else:
-            if st.button("Get Detailed Assessment"):
-                level, score = predict_stress(st.session_state.user_data)
-                detailed_advice = get_detailed_advice(level, st.session_state.user_data)
-                
-                st.markdown(f"""
-                    <div class='advice-box'>
-                        <h2>Your Stress Assessment</h2>
-                        <h3>Stress Level: {level} ({score:.1f}/10)</h3>
-                    </div>
-                """, unsafe_allow_html=True)
-                
-                for category, tips in detailed_advice.items():
+            col1, col2 = st.columns(2)
+            with col1:
+                if st.button("Get Detailed Assessment"):
+                    level, score = predict_stress(st.session_state.user_data)
+                    detailed_advice = get_detailed_advice(level, st.session_state.user_data)
+                    
                     st.markdown(f"""
                         <div class='advice-box'>
-                            <h3>{category}</h3>
-                            <ul>
-                                {"".join([f"<li>{tip}</li>" for tip in tips])}
-                            </ul>
+                            <h2>Your Stress Assessment</h2>
+                            <h3>Stress Level: {level} ({score:.1f}/10)</h3>
                         </div>
                     """, unsafe_allow_html=True)
+                    
+                    for category, tips in detailed_advice.items():
+                        st.markdown(f"""
+                            <div class='advice-box'>
+                                <h3>{category}</h3>
+                                <ul>
+                                    {"".join([f"<li>{tip}</li>" for tip in tips])}
+                                </ul>
+                            </div>
+                        """, unsafe_allow_html=True)
+            with col2:
+                if st.button("Start Over"):
+                    st.session_state.step = 0
+                    st.session_state.user_data = {}
+                    st.session_state.chat_history = []
+                    
 
         # Footer
         st.markdown("""
