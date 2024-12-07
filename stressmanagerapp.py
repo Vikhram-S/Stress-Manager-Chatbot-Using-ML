@@ -18,6 +18,10 @@ if 'user_data' not in st.session_state:
     st.session_state.user_data = {}
 if 'chat_history' not in st.session_state:
     st.session_state.chat_history = []
+if 'model' not in st.session_state:
+    st.session_state.model = None
+if 'feature_columns' not in st.session_state:
+    st.session_state.feature_columns = None
 
 # File uploader for CSV
 st.sidebar.header("Upload Dataset")
@@ -30,12 +34,16 @@ if uploaded_file is not None:
     X = df_encoded.drop(columns=['Stress Level'])
     y = df_encoded['Stress Level']
 
+    # Store feature columns in session state
+    st.session_state.feature_columns = X.columns
+
     # Train-test split
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-    # Train RandomForest model
+    # Train RandomForest model and store in session state
     rf_model = RandomForestRegressor(random_state=42)
     rf_model.fit(X_train, y_train)
+    st.session_state.model = rf_model
     
     # Get unique occupations
     unique_occupations = df_cleaned['Occupation'].unique().tolist()
@@ -175,6 +183,10 @@ if uploaded_file is not None:
         return advice[stress_level]
 
     def predict_stress(user_data):
+        if st.session_state.model is None or st.session_state.feature_columns is None:
+            st.error("Please upload dataset first")
+            return None, None
+
         input_data = pd.DataFrame({
             'Age': [user_data['age']],
             'Sleep Duration': [user_data['sleep_duration']],
@@ -205,8 +217,10 @@ if uploaded_file is not None:
         input_data[f'Sleep Disorder_Sleep Apnea'] = [1 if user_data['sleep_disorder'].strip().title() == "Sleep Apnea" else 0]
         input_data[f'Sleep Disorder_Insomnia'] = [1 if user_data['sleep_disorder'].strip().title() == "Insomnia" else 0]
 
-        input_data = input_data[X.columns]
-        prediction = rf_model.predict(input_data)[0]
+        # Reorder columns to match training data
+        input_data = input_data.reindex(columns=st.session_state.feature_columns, fill_value=0)
+        
+        prediction = st.session_state.model.predict(input_data)[0]
         
         if prediction > 7:
             return "High", prediction
@@ -221,7 +235,7 @@ if uploaded_file is not None:
         questions = [
             ("Please enter your gender (Male/Female):", "gender", lambda x: x.strip().lower() in ["male", "female"]),
             ("What is your age?", "age", lambda x: x.strip().isdigit() and 18 <= int(x) <= 100),
-            ("What is your occupation?", "occupation", lambda x: x.strip().title() in unique_occupations),
+            (f"What is your occupation? ({', '.join(unique_occupations)}):", "occupation", lambda x: x.strip().title() in unique_occupations),
             ("How many hours do you sleep per day? (4-12)", "sleep_duration", lambda x: x.strip().replace('.','',1).isdigit() and 4 <= float(x) <= 12),
             ("Rate your sleep quality (1-10):", "sleep_quality", lambda x: x.strip().isdigit() and 1 <= int(x) <= 10),
             ("Rate your physical activity level (1-10):", "activity_level", lambda x: x.strip().isdigit() and 1 <= int(x) <= 10),
@@ -255,7 +269,7 @@ if uploaded_file is not None:
                         st.session_state.user_data[key] = user_input.strip()
                         st.session_state.chat_history.append((question, user_input.strip()))
                         st.session_state.step += 1
-                
+                        st.experimental_rerun()
                     else:
                         st.error("Please provide a valid input")
             with col2:
@@ -263,31 +277,32 @@ if uploaded_file is not None:
                     st.session_state.step = 0
                     st.session_state.user_data = {}
                     st.session_state.chat_history = []
-                    
+                    st.experimental_rerun()
                     
         else:
             col1, col2 = st.columns(2)
             with col1:
                 if st.button("Get Detailed Assessment"):
                     level, score = predict_stress(st.session_state.user_data)
-                    detailed_advice = get_detailed_advice(level, st.session_state.user_data)
-                    
-                    st.markdown(f"""
-                        <div class='advice-box'>
-                            <h2>Your Stress Assessment</h2>
-                            <h3>Stress Level: {level} ({score:.1f}/10)</h3>
-                        </div>
-                    """, unsafe_allow_html=True)
-                    
-                    for category, tips in detailed_advice.items():
+                    if level is not None and score is not None:
+                        detailed_advice = get_detailed_advice(level, st.session_state.user_data)
+                        
                         st.markdown(f"""
                             <div class='advice-box'>
-                                <h3>{category}</h3>
-                                <ul>
-                                    {"".join([f"<li>{tip}</li>" for tip in tips])}
-                                </ul>
+                                <h2>Your Stress Assessment</h2>
+                                <h3>Stress Level: {level} ({score:.1f}/10)</h3>
                             </div>
                         """, unsafe_allow_html=True)
+                        
+                        for category, tips in detailed_advice.items():
+                            st.markdown(f"""
+                                <div class='advice-box'>
+                                    <h3>{category}</h3>
+                                    <ul>
+                                        {"".join([f"<li>{tip}</li>" for tip in tips])}
+                                    </ul>
+                                </div>
+                            """, unsafe_allow_html=True)
             with col2:
                 if st.button("Start Over"):
                     st.session_state.step = 0
