@@ -3,6 +3,20 @@ import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 import streamlit as st
+import traceback
+
+# Set page configuration and styling
+st.set_page_config(
+    page_title="Mental Stress Manager", 
+    page_icon="🧠",
+    layout="wide"
+)
+
+# Initialize user data dictionary in session state if not exists
+if 'user_data' not in st.session_state:
+    st.session_state.user_data = {}
+
+# Display welcome message and app info
 st.title("Welcome to Mental Stress Manager 🧠")
 st.markdown("""
 This is your personal AI companion for managing stress and mental wellbeing.
@@ -21,199 +35,149 @@ This is your personal AI companion for managing stress and mental wellbeing.
 - Secure and private interactions
 """)
 
-# Initial stress assessment questions
-st.subheader("Let's do a quick stress assessment:")
+# Define unique occupations
+unique_occupations = ["Doctor", "Engineer", "Lawyer", "Manager", "Nurse", "Teacher", "Others"]
 
-stress_level = st.slider("On a scale of 1-10, how would you rate your current stress level?", 1, 10, 5)
-sleep_hours = st.number_input("How many hours of sleep did you get last night?", 0, 12, 7)
-stress_factors = st.multiselect(
-    "What factors are contributing to your stress? (Select all that apply)",
-    ["Work", "Relationships", "Health", "Finance", "Family", "Studies", "Other"]
-)
-
-physical_symptoms = st.multiselect(
-    "Are you experiencing any physical symptoms? (Select all that apply)",
-    ["Headache", "Muscle tension", "Fatigue", "Sleep issues", "Appetite changes", "None"]
-)
-
-# Footer with team info
-st.markdown("---")
-col1, col2 = st.columns(2)
-with col1:
-    st.markdown("Created by Team Z Data Knights")
-with col2:
-    st.markdown("For support, reach us through our [social links](#)")
-
-import numpy as np
-import pandas as pd
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.model_selection import train_test_split
-import streamlit as st
-
-# Set page configuration and styling
-st.set_page_config(
-    page_title="Mental Stress Manager", 
-    page_icon="🧠",
-    layout="wide"
-)
-
-# Custom CSS styling with modern UI colors
-st.markdown("""
-    <style>
-    .main {
-        background-color: #1E1E1E;
-        color: #FFFFFF;
-    }
-    .stButton>button {
-        background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
-        color: white;
-        border: none;
-        border-radius: 10px;
-        padding: 10px 20px;
-        margin: 5px;
-        transition: all 0.3s ease;
-    }
-    .stButton>button:hover {
-        transform: scale(1.05);
-        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    }
-    .stTextInput>div>div>input {
-        border-radius: 10px;
-        border: 2px solid #4ECDC4;
-        background-color: rgba(255,255,255,0.1);
-        color: white;
-    }
-    .stSelectbox>div>div>select {
-        border-radius: 10px;
-        border: 2px solid #4ECDC4;
-        background-color: rgba(255,255,255,0.1);
-        color: white;
-    }
-    .chat-container {
-        max-width: 800px;
-        margin: auto;
-        padding: 20px;
-    }
-    .chat-message {
-        padding: 15px;
-        border-radius: 15px;
-        margin: 10px 0;
-        display: flex;
-        align-items: flex-start;
-    }
-    .user-message {
-        background: linear-gradient(45deg, #FF6B6B22, #FF6B6B44);
-        margin-left: 50px;
-    }
-    .bot-message {
-        background: linear-gradient(45deg, #4ECDC422, #4ECDC444);
-        margin-right: 50px;
-    }
-    .avatar {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        margin-right: 10px;
-    }
-    h1, h2, h3 {
-        background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        text-align: center;
-    }
-    p {
-        color: #FFFFFF;
-        font-size: 16px;
-        line-height: 1.6;
-    }
-    .result-card {
-        background: linear-gradient(45deg, #2C3E50, #3498DB);
-        padding: 25px;
-        border-radius: 20px;
-        margin: 20px 0;
-        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-    }
-    .footer {
-        background: linear-gradient(45deg, #2C3E50, #3498DB);
-        padding: 30px;
-        border-radius: 20px;
-        margin-top: 50px;
-    }
-    .footer-content {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-wrap: wrap;
-        max-width: 1200px;
-        margin: auto;
-    }
-    .team-section {
-        flex: 1;
-        min-width: 300px;
-        padding: 20px;
-    }
-    .social-links {
-        display: flex;
-        gap: 20px;
-    }
-    .social-link {
-        color: white;
-        text-decoration: none;
-        padding: 10px 20px;
-        border-radius: 30px;
-        background: rgba(255,255,255,0.1);
-        transition: all 0.3s ease;
-    }
-    .social-link:hover {
-        background: rgba(255,255,255,0.2);
-        transform: translateY(-2px);
-    }
-    </style>
-""", unsafe_allow_html=True)
-
-# Initialize chat history
-if 'chat_history' not in st.session_state:
-    st.session_state.chat_history = []
-
-# Upload dataset
-st.title("Mental Stress Manager")
-uploaded_file = st.file_uploader("Upload the Sleep Health and Lifestyle Dataset (CSV)", type="csv")
-if uploaded_file is not None:
-    df = pd.read_csv(uploaded_file)
-else:
-    st.error("Please upload the required dataset to proceed.")
-    st.stop()
-
-# Data preprocessing
-df_cleaned = df.drop_duplicates()
-if 'Person ID' in df_cleaned.columns:
-    df_cleaned = df_cleaned.drop(columns=['Person ID'])
-
-# Convert categorical variables
-categorical_columns = ['Gender', 'Occupation', 'BMI Category', 'Blood Pressure', 'Sleep Disorder']
-df_cleaned[categorical_columns] = df_cleaned[categorical_columns].astype('category')
-
-# Prepare model data
-df_encoded = pd.get_dummies(df_cleaned, drop_first=True)
-X = df_encoded.drop(columns=['Stress Level'])
-y = df_encoded['Stress Level']
-
-# Train model
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-rf_model = RandomForestRegressor(random_state=42)
-rf_model.fit(X_train, y_train)
-
-def predict_stress(user_data):
+def process_user_input(message, user_data):
     """
-    Predict stress level based on user input data.
-    Uses Random Forest model trained on sleep health and lifestyle data.
-    Returns a stress level prediction between 1-10.
+    Process user input and return appropriate response based on conversation flow
     """
-    user_df = pd.DataFrame([user_data])
-    user_encoded = pd.get_dummies(user_df, drop_first=True)
-    user_encoded = user_encoded.reindex(columns=X.columns, fill_value=0)
-    prediction = rf_model.predict(user_encoded)
-    return prediction[0]
+    try:
+        # Step through each question based on user responses
+        if "gender" not in user_data:
+            user_data["gender"] = message
+            return "Great! Thank you for sharing. Could you please tell me your age?"
+        
+        if "age" not in user_data:
+            user_data["age"] = int(message)
+            return f"Thank you! Now, Please select your occupation from the following options:\n{', '.join(unique_occupations)}\nIf your occupation is not listed, type 'Others'."
+        
+        if "occupation" not in user_data:
+            if message not in unique_occupations:
+                return f"Please select a valid occupation from the list or type 'Others'.\n{', '.join(unique_occupations)}"
+            user_data["occupation"] = message
+            return "How many hours do you sleep per day?"
+        
+        if "sleep_duration" not in user_data:
+            user_data["sleep_duration"] = float(message)
+            return "Thanks! Rate the quality of your sleep on a scale of 1-10."
+        
+        if "quality_of_sleep" not in user_data:
+            user_data["quality_of_sleep"] = int(message)
+            return "I appreciate your honesty! Now, Rate your physical activity level on a scale of 1-10."
+        
+        if "activity_level" not in user_data:
+            user_data["activity_level"] = int(message)
+            return "Thank you for your response! Please choose a valid BMI category (Normal, Overweight, Obese)."
+        
+        if "bmi_category" not in user_data:
+            if message not in ["Normal", "Overweight", "Obese"]:
+                return "Please choose a valid BMI category (Normal, Overweight, Obese)."
+            user_data["bmi_category"] = message
+            return "Thank you! and What is your systolic blood pressure?"
+        
+        if "systolic_bp" not in user_data:
+            user_data["systolic_bp"] = float(message)
+            return "Thank you for your response! What is your diastolic blood pressure?"
+        
+        if "diastolic_bp" not in user_data:
+            user_data["diastolic_bp"] = float(message)
+            return "Thanks! Can you please tell me your heart rate?"
+        
+        if "heart_rate" not in user_data:
+            user_data["heart_rate"] = float(message)
+            return "Almost there! How many steps do you take daily?"
+        
+        if "daily_steps" not in user_data:
+            user_data["daily_steps"] = int(message)
+            return "Thank you for sharing! Do you have any sleep disorders? (None, Sleep Apnea, Insomnia)"
+        
+        if "sleep_disorder" not in user_data:
+            if message not in ["None", "Sleep Apnea", "Insomnia"]:
+                return "I appreciate your input! Please choose a valid sleep disorder option (None, Sleep Apnea, Insomnia)."
+            user_data["sleep_disorder"] = message
+
+            # All data collected, proceed to prediction
+            prediction = predict_stress(
+                user_data["gender"], user_data["age"], user_data["occupation"],
+                user_data["sleep_duration"], user_data["quality_of_sleep"], 
+                user_data["activity_level"], user_data["bmi_category"], 
+                user_data["systolic_bp"], user_data["diastolic_bp"], 
+                user_data["heart_rate"], user_data["daily_steps"], 
+                user_data["sleep_disorder"]
+            )
+            user_data.clear()  # Reset for the next user
+            return prediction
+
+    except Exception as e:
+        print(traceback.format_exc())
+        return "An error occurred while processing your input. Please try again."
+
+def predict_stress(gender, age, occupation, sleep_duration, quality_of_sleep, activity_level, 
+                   bmi_category, systolic_bp, diastolic_bp, heart_rate, daily_steps, sleep_disorder):
+    
+    input_data = pd.DataFrame({
+        'Age': [age],
+        'Sleep Duration': [sleep_duration],
+        'Quality of Sleep': [quality_of_sleep],
+        'Physical Activity Level': [activity_level],
+        'Heart Rate': [heart_rate],
+        'Daily Steps': [daily_steps],
+        'Gender_Male': [1 if gender == "Male" else 0],
+        'Systolic_BP': [systolic_bp],
+        'Diastolic_BP': [diastolic_bp]
+    })
+
+    if occupation == "Others":
+        for occ in unique_occupations:
+            input_data[f"Occupation_{occ}"] = [0]
+    else:
+        for occ in unique_occupations:
+            input_data[f"Occupation_{occ}"] = [1 if occupation == occ else 0]
+
+    required_columns = X.columns
+    for col in required_columns:
+        if col not in input_data.columns:
+            input_data[col] = 0
+
+    input_data[f'BMI Category_Normal'] = [1 if bmi_category == "Normal" else 0]
+    input_data[f'BMI Category_Overweight'] = [1 if bmi_category == "Overweight" else 0]
+    input_data[f'BMI Category_Obese'] = [1 if bmi_category == "Obese" else 0]
+
+    input_data[f'Sleep Disorder_None'] = [1 if sleep_disorder == "None" else 0]
+    input_data[f'Sleep Disorder_Sleep Apnea'] = [1 if sleep_disorder == "Sleep Apnea" else 0]
+    input_data[f'Sleep Disorder_Insomnia'] = [1 if sleep_disorder == "Insomnia" else 0]
+
+    input_data = input_data[X.columns]
+    prediction = rf_model.predict(input_data)
+    stress_level = prediction[0]
+
+    if stress_level > 7:
+        stress_label = "High"
+        suggestion = ("High stress level detected. It's important to address your stress immediately. "
+        "Consider practicing deep breathing exercises, mindfulness, or yoga to help manage stress. "
+        "Regular physical exercise, such as walking, running, or cycling, can also reduce stress levels. "
+        "Make sure you're getting enough sleep (7-9 hours per night) and maintaining a balanced diet. "
+        "If these techniques do not help, consider seeking support from a counselor or therapist. "
+        "Professional help can provide coping mechanisms to manage long-term stress.")
+    elif 5 <= stress_level < 7:
+        stress_label = "Medium"
+        suggestion = (
+        "Moderate stress level detected. This is a manageable level of stress, but you should still take steps "
+        "to reduce it. Incorporating stress-relief activities into your daily routine, such as meditation, "
+        "listening to calming music, or spending time with loved ones, can be helpful. "
+        "Engaging in hobbies or activities you enjoy can serve as a positive outlet. "
+        "Make sure you're taking breaks during work or study sessions to avoid burnout. "
+        "Getting adequate sleep, staying hydrated, and maintaining regular exercise can further alleviate stress.")
+    else:
+        stress_label = "Low"
+        suggestion = ("Low stress level detected. You're doing well at maintaining balance in your life! "
+        "To keep your stress levels low, continue engaging in activities that promote relaxation, "
+        "such as spending time outdoors, exercising regularly, and keeping up with healthy sleep habits. "
+        "Stay connected with friends and family for emotional support and make time for hobbies you enjoy. "
+        "It's also important to maintain a healthy diet and stay active to keep your mental and physical well-being in check.")
+
+    return f"Predicted Stress Level: {stress_label} (Score: {round(stress_level, 2)})\n\nSuggestions: {suggestion}"
 
 def main():
     st.markdown("<h1>Mental Stress Manager</h1>", unsafe_allow_html=True)
@@ -250,9 +214,8 @@ def main():
                 'content': user_input
             })
             
-            # Process user input and generate response
-            # This is a simplified example - you would need to implement proper NLP here
-            response = "I understand you're concerned about stress. Let's assess your stress levels with some questions."
+            # Process user input and get response
+            response = process_user_input(user_input, st.session_state.user_data)
             
             # Add bot response to chat history
             st.session_state.chat_history.append({
@@ -261,26 +224,6 @@ def main():
             })
             
             st.rerun()
-
-    # Footer
-    st.markdown("""
-        <div class='footer'>
-            <div class='footer-content'>
-                <div class='team-section'>
-                    <h3>Development Team</h3>
-                    <p>Lead Developer: Vikhram S</p>
-                    <p>Co-Developers: Ragul S, Roshan R, Nithesh Kumar B</p>
-                </div>
-                <div class='social-links'>
-                    <a href='https://www.linkedin.com/in/vikhram-s' class='social-link'>📧 LinkedIn</a>
-                    <a href='mailto:vikhrams@saveetha.ac.in' class='social-link'>💼 Email</a>
-                    <a href='https://github.com/Vikhram-S' class='social-link'>🌟 GitHub</a>
-                </div>
-            </div>
-            <p style='text-align: center; margin-top: 20px;'>Made with ❤️ by Team Z Data Knights</p>
-            <p style='text-align: center; margin-top: 10px;'>© 2024 Mental Stress Manager Chatbot by Z Data Knights. All rights reserved.</p>
-        </div>
-    """, unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
