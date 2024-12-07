@@ -264,20 +264,24 @@ if uploaded_file is not None:
             
             col1, col2 = st.columns(2)
             with col1:
-                if st.button("Next"):
+                next_button = st.button("Next", key="next_button")
+                if next_button and not st.session_state.get('next_clicked', False):
+                    st.session_state.next_clicked = True
                     if validator(user_input):
                         st.session_state.user_data[key] = user_input.strip()
                         st.session_state.chat_history.append((question, user_input.strip()))
                         st.session_state.step += 1
-                        st.experimental_rerun()
                     else:
                         st.error("Please provide a valid input")
+                    st.session_state.next_clicked = False
             with col2:
-                if st.button("Clear"):
+                clear_button = st.button("Clear", key="clear_button")
+                if clear_button and not st.session_state.get('clear_clicked', False):
+                    st.session_state.clear_clicked = True
                     st.session_state.step = 0
                     st.session_state.user_data = {}
                     st.session_state.chat_history = []
-                    st.experimental_rerun()
+                    st.session_state.clear_clicked = False
                     
         else:
             col1, col2 = st.columns(2)
