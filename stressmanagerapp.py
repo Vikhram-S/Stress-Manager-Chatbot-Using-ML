@@ -255,7 +255,7 @@ if uploaded_file is not None:
                         st.session_state.user_data[key] = user_input.strip()
                         st.session_state.chat_history.append((question, user_input.strip()))
                         st.session_state.step += 1
-                        st.experimental_rerun()
+                
                     else:
                         st.error("Please provide a valid input")
             with col2:
@@ -263,7 +263,7 @@ if uploaded_file is not None:
                     st.session_state.step = 0
                     st.session_state.user_data = {}
                     st.session_state.chat_history = []
-                    st.experimental_rerun()
+                    
                     
         else:
             col1, col2 = st.columns(2)
