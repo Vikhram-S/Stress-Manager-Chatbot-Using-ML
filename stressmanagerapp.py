@@ -259,7 +259,6 @@ if uploaded_file is not None:
 
         if st.session_state.step < len(questions):
             question, key, validator = questions[st.session_state.step]
-            st.write(f"Question {st.session_state.step + 1}/{len(questions)}")
             user_input = st.text_input(question, key=f"input_{st.session_state.step}")
             
             col1, col2 = st.columns(2)
@@ -317,10 +316,16 @@ if uploaded_file is not None:
         # Footer
         st.markdown("""
             <div class='footer'>
-                <h3>Development Team</h3>
-                <p>Lead Developer: Vikhram S</p>
-                <p>Co-Developers: Ragul S, Roshan R, Nithesh Kumar B</p>
+                <h3>Meet Our Exceptional Development Team</h3>
+                <div class='team-section'>
+                    <p><strong>Project Lead Developer</strong><br>Vikhram S</p>
+                    <p><strong>Co-Developers</strong><br>
+                    • Ragul S<br>
+                    • Roshan R<br>
+                    • Nithesh Kumar B</p>
+                </div>
                 <p>© 2024 Mental Stress Manager by Z Data Knights. All Rights Reserved.</p>
+                <p style='text-align: center; margin-top: 15px;'>Made With ❤️ by Team Z Data Knights</p>
             </div>
         """, unsafe_allow_html=True)
 
