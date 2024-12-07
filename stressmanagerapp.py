@@ -11,6 +11,14 @@ st.set_page_config(
     layout="wide"
 )
 
+# Initialize session state
+if 'step' not in st.session_state:
+    st.session_state.step = 0
+if 'user_data' not in st.session_state:
+    st.session_state.user_data = {}
+if 'chat_history' not in st.session_state:
+    st.session_state.chat_history = []
+
 # File uploader for CSV
 st.sidebar.header("Upload Dataset")
 uploaded_file = st.sidebar.file_uploader("Upload your CSV file", type=["csv"])
@@ -51,6 +59,10 @@ if uploaded_file is not None:
             max-width: 800px;
             margin: auto;
             padding: 20px;
+            border: 1px solid #4ECDC4;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            background: rgba(255,255,255,0.05);
         }
         .chat-message {
             padding: 15px;
@@ -67,15 +79,18 @@ if uploaded_file is not None:
             background: linear-gradient(45deg, #4ECDC422, #4ECDC444);
             margin-right: 50px;
         }
+        .advice-box {
+            padding: 20px;
+            border-radius: 15px;
+            background: linear-gradient(45deg, #2C3E5022, #3498DB22);
+            margin: 20px 0;
+            border: 1px solid #3498DB;
+        }
         .footer {
             background: linear-gradient(45deg, #2C3E50, #3498DB);
             padding: 30px;
             border-radius: 20px;
             margin-top: 50px;
-        }
-        .button-container {
-            display: flex;
-            gap: 10px;
         }
         </style>
     """, unsafe_allow_html=True)
@@ -85,114 +100,184 @@ if uploaded_file is not None:
     This app is your personal AI companion for managing stress and mental wellbeing.
 
     ### Features:
-    - Chat interface for stress assessment
+    - Structured questionnaire for stress assessment
     - AI-powered predictions
-    - Personalized recommendations
-    - Progress tracking
+    - Detailed personalized recommendations
+    - Holistic wellness advice
     """)
 
-    def predict_stress(gender, age, occupation, sleep_duration, quality_of_sleep, activity_level, 
-                    bmi_category, systolic_bp, diastolic_bp, heart_rate, daily_steps, sleep_disorder):
+    def get_detailed_advice(stress_level, user_data):
+        age = int(user_data['age'])
+        sleep_quality = int(user_data['sleep_quality'])
+        activity_level = int(user_data['activity_level'])
         
+        advice = {
+            "High": {
+                "Immediate Actions": [
+                    "Take deep breaths for 5 minutes every hour",
+                    "Step away from stressful situations when possible",
+                    "Practice the 5-4-3-2-1 grounding technique"
+                ],
+                "Daily Practices": [
+                    f"Given your activity level of {activity_level}/10, gradually increase physical activity",
+                    f"With your sleep quality at {sleep_quality}/10, focus on sleep hygiene",
+                    "Maintain a stress journal to identify triggers",
+                    "Practice progressive muscle relaxation before bed"
+                ],
+                "Long-term Strategies": [
+                    "Consider professional counseling or therapy",
+                    "Join stress management workshops",
+                    "Build a support network",
+                    "Learn time management techniques"
+                ],
+                "Lifestyle Modifications": [
+                    "Reduce caffeine and processed foods",
+                    "Create a calming morning routine",
+                    "Set boundaries in work and personal life",
+                    "Take up a relaxing hobby like gardening or painting"
+                ]
+            },
+            "Medium": {
+                "Daily Practices": [
+                    "15-minute morning meditation",
+                    f"Based on your age ({age}), appropriate exercise routine",
+                    "Regular breaks during work",
+                    "Nature walks or outdoor time"
+                ],
+                "Wellness Tips": [
+                    "Practice mindful eating",
+                    "Maintain a gratitude journal",
+                    "Regular stretching exercises",
+                    "Digital detox for 1 hour before bed"
+                ],
+                "Preventive Measures": [
+                    "Set realistic goals and priorities",
+                    "Create a balanced weekly schedule",
+                    "Practice saying 'no' when necessary",
+                    "Regular social connections"
+                ]
+            },
+            "Low": {
+                "Maintenance Tips": [
+                    "Continue your effective stress management practices",
+                    "Regular exercise and movement",
+                    "Maintain social connections",
+                    "Healthy sleep schedule"
+                ],
+                "Enhancement Strategies": [
+                    "Set new personal growth goals",
+                    "Learn new skills or hobbies",
+                    "Share your successful strategies with others",
+                    "Regular wellness check-ins"
+                ]
+            }
+        }
+        return advice[stress_level]
+
+    def predict_stress(user_data):
         input_data = pd.DataFrame({
-            'Age': [age],
-            'Sleep Duration': [sleep_duration],
-            'Quality of Sleep': [quality_of_sleep],
-            'Physical Activity Level': [activity_level],
-            'Heart Rate': [heart_rate],
-            'Daily Steps': [daily_steps],
-            'Gender_Male': [1 if gender.lower() == "male" else 0],
-            'Systolic_BP': [systolic_bp],
-            'Diastolic_BP': [diastolic_bp]
+            'Age': [user_data['age']],
+            'Sleep Duration': [user_data['sleep_duration']],
+            'Quality of Sleep': [user_data['sleep_quality']],
+            'Physical Activity Level': [user_data['activity_level']],
+            'Heart Rate': [user_data['heart_rate']],
+            'Daily Steps': [user_data['daily_steps']],
+            'Gender_Male': [1 if user_data['gender'].lower() == "male" else 0],
+            'Systolic_BP': [user_data['systolic_bp']],
+            'Diastolic_BP': [user_data['diastolic_bp']]
         })
 
         # Handle occupation encoding
-        if occupation == "Others":
+        if user_data['occupation'] == "Others":
             for occ in unique_occupations:
                 input_data[f"Occupation_{occ}"] = [0]
         else:
             for occ in unique_occupations:
-                input_data[f"Occupation_{occ}"] = [1 if occupation == occ else 0]
+                input_data[f"Occupation_{occ}"] = [1 if user_data['occupation'] == occ else 0]
 
         # Encode BMI category
-        input_data[f'BMI Category_Normal'] = [1 if bmi_category == "Normal" else 0]
-        input_data[f'BMI Category_Overweight'] = [1 if bmi_category == "Overweight" else 0]
-        input_data[f'BMI Category_Obese'] = [1 if bmi_category == "Obese" else 0]
+        input_data[f'BMI Category_Normal'] = [1 if user_data['bmi_category'] == "Normal" else 0]
+        input_data[f'BMI Category_Overweight'] = [1 if user_data['bmi_category'] == "Overweight" else 0]
+        input_data[f'BMI Category_Obese'] = [1 if user_data['bmi_category'] == "Obese" else 0]
 
         # Encode Sleep Disorder
-        input_data[f'Sleep Disorder_None'] = [1 if sleep_disorder == "None" else 0]
-        input_data[f'Sleep Disorder_Sleep Apnea'] = [1 if sleep_disorder == "Sleep Apnea" else 0]
-        input_data[f'Sleep Disorder_Insomnia'] = [1 if sleep_disorder == "Insomnia" else 0]
+        input_data[f'Sleep Disorder_None'] = [1 if user_data['sleep_disorder'] == "None" else 0]
+        input_data[f'Sleep Disorder_Sleep Apnea'] = [1 if user_data['sleep_disorder'] == "Sleep Apnea" else 0]
+        input_data[f'Sleep Disorder_Insomnia'] = [1 if user_data['sleep_disorder'] == "Insomnia" else 0]
 
-        # Align columns with training data
         input_data = input_data[X.columns]
-        
-        # Make prediction
         prediction = rf_model.predict(input_data)[0]
         
-        # Generate response based on stress level
         if prediction > 7:
-            stress_label = "High"
-            suggestion = ("High stress level detected. It's important to address your stress immediately. "
-                        "Consider practicing deep breathing exercises, mindfulness, or yoga to help manage stress. "
-                        "Regular physical exercise, such as walking, running, or cycling, can also reduce stress levels. "
-                        "Make sure you're getting enough sleep (7-9 hours per night) and maintaining a balanced diet. "
-                        "If these techniques do not help, consider seeking support from a counselor or therapist. "
-                        "Professional help can provide coping mechanisms to manage long-term stress.")
+            return "High", prediction
         elif prediction > 4:
-            stress_label = "Medium"
-            suggestion = ("Moderate stress level detected. Here are some helpful tips:\n"
-                        "1. Start a 10-minute daily meditation practice\n"
-                        "2. Take regular breaks every 2 hours\n"
-                        "3. Go for a 15-minute walk outside\n"
-                        "4. Practice mindful breathing when feeling overwhelmed\n"
-                        "5. Maintain a consistent sleep schedule")
+            return "Medium", prediction
         else:
-            stress_label = "Low"
-            suggestion = ("Your stress levels appear to be well-managed. Keep up the good work!\n"
-                        "Tips to maintain this positive state:\n"
-                        "1. Continue your current healthy routines\n"
-                        "2. Stay physically active\n"
-                        "3. Maintain good sleep habits\n"
-                        "4. Practice gratitude daily\n"
-                        "5. Stay connected with friends and family")
-        
-        return f"Predicted Stress Level: {stress_label} ({prediction:.1f}/10)\n\n{suggestion}"
-
-    def process_user_input(message, user_data):
-        try:
-            message = message.strip()
-            
-            if "gender" not in user_data:
-                user_data["gender"] = message.strip().lower()
-                return "Great! Thank you for sharing. Could you please tell me your age?"
-            
-            # ... (rest of the process_user_input function remains the same)
-            
-        except Exception as e:
-            print(traceback.format_exc())
-            return "An error occurred while processing your input. Please try again."
+            return "Low", prediction
 
     def main():
-        st.markdown("<h1>Mental Stress Manager</h1>", unsafe_allow_html=True)
+        st.markdown("<h1>Mental Stress Assessment</h1>", unsafe_allow_html=True)
         
-        # Chat interface
-        user_input = st.text_input("Type your message...")
-        
-        if st.button("Send"):
-            if user_input:
-                # Process user input and get response
-                response = process_user_input(user_input, {})
-                
-                # Display the conversation
+        questions = [
+            ("Please enter your gender (Male/Female):", "gender", lambda x: x.lower() in ["male", "female"]),
+            ("What is your age?", "age", lambda x: x.isdigit() and 18 <= int(x) <= 100),
+            ("What is your occupation?", "occupation", lambda x: x.title() in unique_occupations),
+            ("How many hours do you sleep per day? (4-12)", "sleep_duration", lambda x: x.replace('.','',1).isdigit() and 4 <= float(x) <= 12),
+            ("Rate your sleep quality (1-10):", "sleep_quality", lambda x: x.isdigit() and 1 <= int(x) <= 10),
+            ("Rate your physical activity level (1-10):", "activity_level", lambda x: x.isdigit() and 1 <= int(x) <= 10),
+            ("Enter your BMI category (Normal/Overweight/Obese):", "bmi_category", lambda x: x.title() in ["Normal", "Overweight", "Obese"]),
+            ("Enter your systolic blood pressure (90-200):", "systolic_bp", lambda x: x.isdigit() and 90 <= int(x) <= 200),
+            ("Enter your diastolic blood pressure (60-130):", "diastolic_bp", lambda x: x.isdigit() and 60 <= int(x) <= 130),
+            ("Enter your heart rate (60-120):", "heart_rate", lambda x: x.isdigit() and 60 <= int(x) <= 120),
+            ("Enter your daily steps (1000-20000):", "daily_steps", lambda x: x.isdigit() and 1000 <= int(x) <= 20000),
+            ("Do you have any sleep disorder? (None/Sleep Apnea/Insomnia):", "sleep_disorder", lambda x: x.title() in ["None", "Sleep Apnea", "Insomnia"])
+        ]
+
+        # Display chat history
+        for i, (q, a) in enumerate(st.session_state.chat_history):
+            with st.container():
                 st.markdown(f"""
-                    <div class='chat-message user-message'>
-                        <div>{user_input}</div>
-                    </div>
-                    <div class='chat-message bot-message'>
-                        <div>{response}</div>
+                    <div class='chat-container'>
+                        <div class='chat-message bot-message'>{q}</div>
+                        <div class='chat-message user-message'>{a}</div>
                     </div>
                 """, unsafe_allow_html=True)
+
+        if st.session_state.step < len(questions):
+            question, key, validator = questions[st.session_state.step]
+            st.write(f"Question {st.session_state.step + 1}/{len(questions)}")
+            user_input = st.text_input(question, key=f"input_{st.session_state.step}")
+            
+            if st.button("Next"):
+                if validator(user_input):
+                    st.session_state.user_data[key] = user_input
+                    st.session_state.chat_history.append((question, user_input))
+                    st.session_state.step += 1
+                    st.experimental_rerun()
+                else:
+                    st.error("Please provide a valid input")
+                    
+        else:
+            if st.button("Get Detailed Assessment"):
+                level, score = predict_stress(st.session_state.user_data)
+                detailed_advice = get_detailed_advice(level, st.session_state.user_data)
+                
+                st.markdown(f"""
+                    <div class='advice-box'>
+                        <h2>Your Stress Assessment</h2>
+                        <h3>Stress Level: {level} ({score:.1f}/10)</h3>
+                    </div>
+                """, unsafe_allow_html=True)
+                
+                for category, tips in detailed_advice.items():
+                    st.markdown(f"""
+                        <div class='advice-box'>
+                            <h3>{category}</h3>
+                            <ul>
+                                {"".join([f"<li>{tip}</li>" for tip in tips])}
+                            </ul>
+                        </div>
+                    """, unsafe_allow_html=True)
 
         # Footer
         st.markdown("""
