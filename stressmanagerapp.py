@@ -829,7 +829,7 @@ def main():
         </style>
         <footer class='professional-footer'>
             <div class='team-info'>
-                <h3>Development Team</h3>
+                <h3>Meet our Exceptional Development Team</h3>
                 <div class='team-grid'>
                     <div class='team-lead'>
                         <h4>Project Lead</h4>
