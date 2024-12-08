@@ -628,7 +628,7 @@ def main():
     questions = [
         ("Please enter your gender (Male/Female):", "gender", lambda x: x.strip().lower() in ["male", "female"]),
         ("What is your age?", "age", lambda x: x.strip().isdigit() and 18 <= int(x) <= 100),
-        (f"What is your occupation? ({', '.join(unique_occupations)}):", "occupation", lambda x: x.strip().title() in unique_occupations),
+        (f"What is your occupation? (Choose 'Others' if not listed: {', '.join(unique_occupations)}):", "occupation", lambda x: x.strip().title() in unique_occupations or x.strip().title() == "Others"),
         ("How many hours do you sleep per day? (4-12)", "sleep_duration", lambda x: x.strip().replace('.','',1).isdigit() and 4 <= float(x) <= 12),
         ("Rate your sleep quality (1-10):", "sleep_quality", lambda x: x.strip().isdigit() and 1 <= int(x) <= 10),
         ("Rate your physical activity level (1-10):", "activity_level", lambda x: x.strip().isdigit() and 1 <= int(x) <= 10),
