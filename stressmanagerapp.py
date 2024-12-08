@@ -705,21 +705,162 @@ def main():
                 st.session_state.user_data = {}
                 st.session_state.chat_history = []
                 
-
-    # Footer
+    # Professional Footer with Mobile-Friendly Design
     st.markdown("""
-        <div class='footer'>
-            <h3>Meet Our Exceptional Development Team</h3>
-            <div class='team-section'>
-                <p><strong>Project Lead Developer</strong><br><strong>Vikhram S</strong></p>
-                <p><strong>Co-Developers</strong><br>
-                • Ragul S<br>
-                • Roshan R<br>
-                • Nithesh Kumar B</p>
+        <style>
+            .professional-footer {
+                background: linear-gradient(135deg, #2b5876 0%, #4e4376 100%);
+                color: white;
+                padding: 1.5rem;
+                border-radius: 10px;
+                margin-top: 1.5rem;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                width: 100%;
+            }
+            .team-info h3 {
+                color: #ffffff;
+                font-size: 1.5rem;
+                margin-bottom: 1rem;
+                text-align: center;
+                font-weight: bold;
+            }
+            .team-grid {
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+                padding: 0.5rem;
+            }
+            .team-lead, .team-members {
+                background: rgba(255, 255, 255, 0.1);
+                padding: 1rem;
+                border-radius: 8px;
+                backdrop-filter: blur(5px);
+                width: 100%;
+            }
+            .team-lead h4, .team-members h4 {
+                color: #ffd700;
+                margin-bottom: 0.5rem;
+                font-size: 1.2rem;
+                font-weight: bold;
+            }
+            .team-members ul {
+                list-style: none;
+                padding: 0;
+                margin: 0;
+            }
+            .team-members li {
+                margin: 0.3rem 0;
+                color: #ffffff;
+                font-size: 1rem;
+                font-weight: bold;
+            }
+            .team-lead p {
+                font-size: 1rem;
+                font-weight: bold;
+                margin: 0.2rem 0;
+            }
+            .team-description {
+                font-size: 0.9rem;
+                color: #e0e0e0;
+                margin: 0.2rem 0;
+                font-style: italic;
+            }
+            .copyright {
+                text-align: center;
+                margin-top: 1.5rem;
+                padding-top: 1rem;
+                border-top: 1px solid rgba(255, 255, 255, 0.2);
+                font-size: 0.9rem;
+            }
+            .made-with-love {
+                color: #ffd700;
+                font-weight: bold;
+                margin-top: 0.5rem;
+                font-size: 1rem;
+            }
+            .contact-info {
+                text-align: center;
+                margin-top: 1rem;
+                color: #ffffff;
+                font-weight: bold;
+                font-size: 0.9rem;
+            }
+            /* Responsive Design */
+            @media screen and (min-width: 768px) {
+                .team-grid {
+                    flex-direction: row;
+                    justify-content: space-around;
+                }
+                .team-lead, .team-members {
+                    width: 45%;
+                }
+                .team-info h3 {
+                    font-size: 2rem;
+                }
+                .team-lead h4, .team-members h4 {
+                    font-size: 1.5rem;
+                }
+                .team-members li, .team-lead p {
+                    font-size: 1.2rem;
+                }
+                .team-description {
+                    font-size: 1rem;
+                }
+                .contact-info, .copyright {
+                    font-size: 1.1rem;
+                }
+            }
+            /* Touch-friendly improvements */
+            .team-lead, .team-members {
+                touch-action: manipulation;
+                -webkit-tap-highlight-color: transparent;
+            }
+            /* Better readability in different modes */
+            @media (prefers-color-scheme: dark) {
+                .professional-footer {
+                    background: linear-gradient(135deg, #1a1a1a 0%, #4e4376 100%);
+                }
+            }
+            @media (prefers-color-scheme: light) {
+                .professional-footer {
+                    background: linear-gradient(135deg, #2b5876 0%, #4e4376 100%);
+                }
+            }
+        </style>
+        <footer class='professional-footer'>
+            <div class='team-info'>
+                <h3>Development Team</h3>
+                <div class='team-grid'>
+                    <div class='team-lead'>
+                        <h4>Project Lead</h4>
+                        <p>Vikhram S</p>
+                        <p class='team-description'>Lead ML Engineer</p>
+                        <p class='team-description'>• Developed core ML algorithms</p>
+                        <p class='team-description'>• Implemented Streamlit frontend</p>
+                        <p class='team-description'>• Designed system architecture</p>
+                    </div>
+                    <div class='team-members'>
+                        <h4>Co-Developers</h4>
+                        <ul>
+                            <li>Ragul S</li>
+                            <p class='team-description'>• Data preprocessing & Feature engineering</p>
+                            <li>Roshan R</li>
+                            <p class='team-description'>• Model testing & Validation</p>
+                            <li>Nithesh Kumar B</li>
+                            <p class='team-description'>• Documentation & Testing</p>
+                        </ul>
+                    </div>
+                </div>
             </div>
-            <p>© 2024 Mental Stress Manager by Z Data Knights. All Rights Reserved.</p>
-            <p style='text-align: center; margin-top: 15px;'>Made With ❤️ by Team Z Data Knights</p>
-        </div>
+            <div class='contact-info'>
+                <p>For Customer Support & Technical Inquiries:</p>
+                <p>vikhrams@saveetha.ac.in</p>
+            </div>
+            <div class='copyright'>
+                <p>© 2024 Mental Stress Manager by Z Data Knights. All Rights Reserved.</p>
+                <p class='made-with-love'>Made With ❤️ by Team Z Data Knights</p>
+            </div>
+        </footer>
     """, unsafe_allow_html=True)
 
 if __name__ == "__main__":
