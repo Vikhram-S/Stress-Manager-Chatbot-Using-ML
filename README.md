@@ -70,7 +70,7 @@ BMI Category
 Sleep Disorders  
 
 ### **Libraries Used**
-- [Gradio](https://streamlit.io/) - Used for building the web-based chatbot interface.
+- [Streamlit](https://streamlit.io/) - Used for building the web-based chatbot interface.
 - [scikit-learn](https://scikit-learn.org/stable/) - Used for training the RandomForestRegressor model.
 - [Pandas](https://pandas.pydata.org/) - Used for data manipulation and analysis.
 - [NumPy](https://numpy.org/) - Used for numerical operations.
