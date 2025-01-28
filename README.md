@@ -8,7 +8,7 @@ This project is designed to help users assess their stress levels and provide pe
 - Predicts stress level using a trained **RandomForestRegressor** model.
 - Provides tailored suggestions based on the predicted stress level (High, Medium, Low).
 - Includes an intuitive UI, suitable for non-technical users.
-- **Uses IBM LinuxONE Jupyter Lab** for model training and deployment.
+
 
 ### **Model Performance**
 The model was trained on a **public dataset from Kaggle**, and performance was evaluated using the following metrics:
