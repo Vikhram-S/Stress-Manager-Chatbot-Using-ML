@@ -3,7 +3,7 @@
 This project is designed to help users assess their stress levels and provide personalized suggestions for managing stress. The chatbot collects user data such as age, gender, sleep quality, physical activity, and health metrics, and uses a **RandomForestRegressor** model to predict the user's stress level.
 
 ### **Features**
-- Interactive chatbot powered by **Gradio**.
+- Interactive chatbot powered by **Streamlit**.
 - Gathers information such as age, gender, occupation, health stats, and lifestyle habits.
 - Predicts stress level using a trained **RandomForestRegressor** model.
 - Provides tailored suggestions based on the predicted stress level (High, Medium, Low).
@@ -47,8 +47,8 @@ The collected data is fed into the trained RandomForest model, which predicts th
 **4. Suggestions:** 
 The chatbot provides personalized recommendations to help manage stress, depending on whether the predicted stress level is low, medium, or high.
 
-# Gradio Interface
-The chatbot uses the Gradio library for a simple and effective web-based interface. The chatbot can be used to:
+# Streamlit Interface
+The chatbot uses the Streamlit library for a simple and effective web-based interface. The chatbot can be used to:
 
 Start conversations
 Assess stress levels
@@ -70,20 +70,16 @@ BMI Category
 Sleep Disorders  
 
 ### **Libraries Used**
-- [Gradio](https://gradio.app/) - Used for building the web-based chatbot interface.
+- [Gradio](https://streamlit.io/) - Used for building the web-based chatbot interface.
 - [scikit-learn](https://scikit-learn.org/stable/) - Used for training the RandomForestRegressor model.
 - [Pandas](https://pandas.pydata.org/) - Used for data manipulation and analysis.
 - [NumPy](https://numpy.org/) - Used for numerical operations.
 - [Matplotlib](https://matplotlib.org/) - Used for plotting and data visualization.
 - [Plotly](https://plotly.com/python/) - Used for creating interactive plots and visualizations.
-- [IBM LinuxONE Jupyter Lab](https://www.ibm.com/it-infrastructure/linuxone) - Used for model training and deployment.
 
 
-# Team 
-1.Vikhram S - https://github.com/Vikhram-S  
-2.Nitesh Kumar B - https://github.com/NitheshKumar-B  
-3.Ragul S - https://github.com/iamraguls  
-4.Roshan R - https://github.com/Roshanr3105  
+
+
 
 # License
 This project is licensed under the MIT License.
